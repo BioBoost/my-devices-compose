@@ -4,20 +4,20 @@ services:
 
   detector:
     build: ../dhcp-request-detector
+    env_file:
+    - mqtt.env
     environment:
       NODE_ENV: development
-      BROKER: "labict.be"
-      TOPIC: "test/network/detect/nico"
     restart: "no"
     network_mode: "host"
 
   listener:
     build: ../ip-report-listener
     restart: "no"
+    env_file:
+    - mqtt.env
     environment:
       NODE_ENV: development
-      MQTT_BROKER: "labict.be"
-      MQTT_TOPIC: "test/network/detect/nico"
       DOMAIN: backend
     networks:
       - backend
