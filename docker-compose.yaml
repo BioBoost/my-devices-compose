@@ -1,0 +1,65 @@
+version: "3.7"
+
+services:
+
+  detector:
+    build: ../dhcp-request-detector
+    environment:
+      NODE_ENV: development
+      BROKER: "labict.be"
+      TOPIC: "test/network/detect/nico"
+    restart: "no"
+    network_mode: "host"
+
+  listener:
+    build: ../ip-report-listener
+    restart: "no"
+    environment:
+      NODE_ENV: development
+      MQTT_BROKER: "labict.be"
+      MQTT_TOPIC: "test/network/detect/nico"
+      DOMAIN: backend
+    networks:
+      - backend
+
+  backend:
+    build: ../my-devices-backend
+    volumes:
+      - ../my-devices-backend/src:/app/src
+      - ../my-devices-backend/migrations:/app/migrations
+      - ../my-devices-backend/seeders:/app/seeders
+    command: sh -c "/wait && npm run dev"
+    ports:
+      - "8081:8081"
+    restart: "no"
+    depends_on:
+      - database
+    environment:
+      NODE_ENV: development
+      DB_HOST: database
+      DB_NAME: my-devices-develop
+      DB_USERNAME: mydevicesdevelop
+      DB_PASSWORD: mydevicesdevelop
+      WAIT_HOSTS: database:3306
+    networks:
+      - backend
+
+  database:
+    image: mariadb:10.4
+    environment:
+      # MYSQL_ROOT_PASSWORD: none
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: my-devices-develop
+      MYSQL_USER: mydevicesdevelop
+      MYSQL_PASSWORD: mydevicesdevelop
+    restart: "no"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - backend
+
+volumes:
+  dbdata:
+
+networks:
+  backend:
