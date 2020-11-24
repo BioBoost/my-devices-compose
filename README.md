@@ -20,9 +20,17 @@ Next launch the services:
 docker-compose up
 ```
 
-and migrate the database:
+and migrate the database (first time):
 
 ```bash
+docker-compose exec backend npx sequelize-cli db:migrate
+docker-compose exec backend npx sequelize-cli db:seed:all
+```
+
+### Reset the database
+
+```bash
+docker-compose exec backend npx sequelize-cli db:migrate:undo:all
 docker-compose exec backend npx sequelize-cli db:migrate
 docker-compose exec backend npx sequelize-cli db:seed:all
 ```
