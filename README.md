@@ -2,6 +2,8 @@
 
 This repo contains the docker-compose file for setting up the whole My-Devices detector and backend.
 
+![./img/my-devices.png]
+
 ## How To
 
 First you will need to configure your MQTT broker and topic. Copy the `mqtt.example.env` file as `mqtt.env` and change the internal settings.
