@@ -18,7 +18,7 @@ services:
     - mqtt.env
     environment:
       NODE_ENV: development
-      DOMAIN: backend
+      BACKEND_DOMAIN: backend
     networks:
       - backend
 
