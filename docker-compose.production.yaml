@@ -1,0 +1,66 @@
+version: "3.7"
+
+services:
+
+  # This might be running somewhere else
+  detector:
+    build: ../dhcp-request-detector
+    env_file:
+    - mqtt.env
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    network_mode: "host"
+
+  listener:
+    build: ../ip-report-listener
+    restart: unless-stopped
+    env_file:
+    - mqtt.env
+    - listener.env
+    environment:
+      NODE_ENV: production
+    networks:
+      - backend
+
+  backend:
+    env_file:
+      - backend.env
+    build: ../my-devices-backend
+    command: sh -c "/wait && npm run start"
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    depends_on:
+      - database
+    environment:
+      NODE_ENV: production
+      WAIT_HOSTS: database:3306
+      DB_HOST: database
+    networks:
+      - backend
+      # - reverse_proxy
+    # labels:
+    #   traefik.enable: true
+    #   traefik.port: 3000
+    #   traefik.docker.network: reverse_proxy
+    #   traefik.http.routers.my-devices-backend-production.rule: Host("${BACKEND_DOMAIN}")
+
+  database:
+    image: mariadb:10.4
+    env_file:
+      - database.env
+    networks:
+      - backend
+    restart: unless-stopped
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  dbdata:
+
+networks:
+  backend:
+  # reverse_proxy:
+  #   external:
+  #     name: reverse_proxy
